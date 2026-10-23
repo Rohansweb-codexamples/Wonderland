@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Christmas Night — Wonderland</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020611;color:#f4f7ff;font-family:system-ui,-apple-system,Segoe UI,sans-serif}button{font:inherit;cursor:pointer}#world{position:fixed;inset:0}canvas{display:block}#ui{position:fixed;inset:0;pointer-events:none}.top{display:flex;justify-content:space-between;gap:10px;padding:14px}.glass{background:#050a18c9;border:1px solid #d8e5ff30;box-shadow:0 8px 35px #0008;backdrop-filter:blur(12px);border-radius:15px}.brand{padding:10px 14px}.brand strong{display:block;letter-spacing:1px}.brand small,.muted{color:#a9badb;font-size:11px}.stats{display:flex;gap:15px;padding:9px 13px}.stats small{display:block;font-size:9px;letter-spacing:1px;color:#a9badb}.stats b{font-size:19px;color:#ffdc83}.voice{position:absolute;top:95px;left:14px;width:min(315px,calc(100vw - 28px));padding:12px;display:flex;gap:10px;align-items:flex-start;pointer-events:auto}.bot{flex:0 0 36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#f9d780,#c68b36);color:#23180b;display:grid;place-items:center;font-weight:1000}.voice strong{font-size:12px}.voice p{font-size:12px;line-height:1.4;margin:4px 0;color:#e0e8fa}.mini{border:1px solid #ffffff30;background:#ffffff10;color:white;border-radius:8px;padding:5px 8px;font-size:10px}.objective{position:absolute;top:95px;right:14px;padding:12px 14px;width:185px}.objective small{color:#a9badb;font-size:9px;letter-spacing:1px}.objective strong{display:block;margin:3px 0 6px}.bar{height:5px;border-radius:9px;background:#ffffff20;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#f6d47a}.bottom{position:absolute;left:50%;bottom:13px;transform:translateX(-50%);width:min(700px,calc(100% - 20px));display:flex;justify-content:space-between;align-items:end;gap:10px}.hint{padding:10px 14px;font-size:12px;text-align:center;flex:1}.controls{display:flex;gap:7px;pointer-events:auto}.controls button{width:48px;height:48px;background:#050a18d9;border:1px solid #ffffff35;border-radius:14px;color:#fff;font-size:21px;touch-action:none}.overlay{position:absolute;inset:0;display:grid;place-items:center;padding:16px;background:radial-gradient(ellipse at center,#09172b70,#01030bd9);pointer-events:auto}.card{width:min(530px,100%);padding:clamp(22px,5vw,38px);text-align:center}.eyebrow{color:#f7d985;font-size:10px;letter-spacing:4px;font-weight:900}.card h1{font-size:clamp(36px,8vw,64px);line-height:.96;margin:13px 0;background:linear-gradient(#fff,#9db8dd);color:transparent;background-clip:text}.card p{line-height:1.6;color:#c3d0e8;font-size:14px}.primary{background:linear-gradient(135deg,#ffe7a0,#dba64e);color:#281c09;border:0;border-radius:11px;padding:13px 20px;font-weight:900}.secondary{background:#ffffff10;color:white;border:1px solid #ffffff30;border-radius:11px;padding:11px 15px}.rowbtn{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;margin-top:18px}.hidden{display:none!important}.tag{display:inline-block;padding:5px 9px;border-radius:20px;background:#ffffff10;color:#f6d47a;font-size:10px}.delivery{position:absolute;left:50%;top:28%;transform:translateX(-50%);text-align:center;padding:12px 18px;min-width:190px}.delivery strong{display:block;font-size:18px}.delivery span{font-size:11px;color:#b9c9e6}.key{display:inline-block;border:1px solid #ffffff45;border-radius:5px;padding:1px 5px;font-size:10px;margin:0 2px}.progressText{font-size:11px;color:#c1cfe8;margin-top:8px}
+@media(max-width:600px){.top{padding:8px}.brand{padding:8px}.brand small{font-size:9px}.stats{gap:8px;padding:8px}.stats b{font-size:15px}.voice{top:75px;left:8px;width:min(260px,calc(100vw - 16px));padding:9px}.objective{top:75px;right:8px;width:130px;padding:9px}.objective strong{font-size:12px}.voice p{font-size:10px}.bottom{bottom:8px}.controls button{width:44px;height:44px}.hint{font-size:10px;padding:8px}.delivery{top:31%}}
+</style>
+</head>
+<body>
+<div id="world"></div><div id="ui">
+<div class="top"><div class="glass brand"><strong>CHRISTMAS NIGHT</strong><small>WONDERLAND · 3D DELIVERY</small></div><div class="glass stats"><div><small>SCORE</small><b id="score">0000</b></div><div><small>DELIVERED</small><b id="delivered">0/5</b></div><div><small>TIME</small><b id="time">—</b></div></div></div>
+<div class="glass voice" id="voice"><div class="bot">W</div><div><strong>WONDERBOT · LOCAL VOICE</strong><p id="voiceText">When it's dark on Christmas night, Santa's in the air. Help him deliver the presents!</p></div></div>
+<div class="glass objective"><small>CURRENT DELIVERY</small><strong id="targetName">Find the first house</strong><div class="bar"><i id="targetBar"></i></div><div class="progressText" id="targetProgress">Follow the lanterns</div></div>
+<div class="glass delivery hidden" id="delivery"><strong id="deliveryTitle">House found</strong><span id="deliveryText">Press E to deliver the present</span></div>
+<div class="bottom"><div class="glass hint" id="hint">Follow the lanterns, enter each house, and leave a present under its Christmas tree.</div><div class="controls"><button data-key="ArrowLeft" aria-label="Steer left">←</button><button data-key="ArrowRight" aria-label="Steer right">→</button><button data-key="KeyE" aria-label="Deliver present">E</button></div></div>
+<div class="overlay" id="intro"><div class="glass card"><div class="eyebrow">A CHRISTMAS NIGHT ADVENTURE</div><h1>One magical<br>night.</h1><p>When it's dark on Christmas night, Santa's in the air. Help him deliver the presents!</p><p>Ride through a moonlit village in Santa's sleigh. Find each house, spot the glowing Christmas tree and leave a present beneath it. The night is dark — your sleigh lanterns will light the way.</p><div class="rowbtn"><button class="primary" id="begin">Start the delivery</button></div><p class="muted">Steer with ← → or A / D · Press E at a front door to enter · Walk inside with W A S D · Press E by the tree to deliver</p></div></div>
+<div class="overlay hidden" id="ending"><div class="glass card"><div class="eyebrow">CHRISTMAS DELIVERY REPORT</div><h1 id="endTitle">Christmas saved!</h1><p id="endText"></p><div class="rowbtn"><button class="primary" id="restart">Play again</button></div><p class="muted">Your best score is saved on this device.</p></div></div>
+</div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js';
+const $=id=>document.getElementById(id),world=$('world');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x020611);scene.fog=new THREE.FogExp2(0x030817,.027);
+const camera=new THREE.PerspectiveCamera(66,innerWidth/innerHeight,.1,180);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,1.8));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;world.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0x30466f,0x070910,.8));
+const moon=new THREE.DirectionalLight(0x9ebeff,1.05);moon.position.set(-20,30,15);scene.add(moon);
+const lantern=new THREE.PointLight(0xffc36a,55,24,2);scene.add(lantern);
+const sleighLamp=new THREE.PointLight(0xffd78a,35,19,2);scene.add(sleighLamp);
+const material=(c,r=.85,m=0)=>new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});
+const snow=material(0x18263b),snowLight=material(0x35445b),pine=material(0x071c1a),pine2=material(0x102d28),wood=material(0x4a2d28),red=material(0x9e2339),gold=material(0xf0bd5e,.35,.45),windowMat=new THREE.MeshStandardMaterial({color:0xffbd63,emissive:0xff8b27,emissiveIntensity:2}),dark=material(0x121b2a),cream=material(0xffe8bc);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(160,220),snow);floor.rotation.x=-Math.PI/2;floor.position.set(0,-.6,-80);floor.receiveShadow=true;scene.add(floor);
+// moon and stars
+const moonBall=new THREE.Mesh(new THREE.SphereGeometry(3,24,18),new THREE.MeshBasicMaterial({color:0xe3edff}));moonBall.position.set(-26,27,-90);scene.add(moonBall);
+for(let i=0;i<350;i++){let s=new THREE.Mesh(new THREE.SphereGeometry(.035+Math.random()*.045,5,5),new THREE.MeshBasicMaterial({color:0xdce8ff,transparent:true,opacity:.35+Math.random()*.65}));s.position.set((Math.random()-.5)*130,5+Math.random()*40,-Math.random()*150);scene.add(s)}
+// snowbanks and trees
+for(let i=0;i<55;i++){let x=(Math.random()-.5)*100,z=-Math.random()*160-4,r=2+Math.random()*6;let hill=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),snowLight);hill.scale.set(r,.6+r*.12,r*1.5);hill.position.set(x,-.6,z);scene.add(hill)}
+function makeTree(parent,x,z,scale=1){const g=new THREE.Group();let trunk=new THREE.Mesh(new THREE.CylinderGeometry(.12,.2,1,6),wood);trunk.position.y=-.2;g.add(trunk);for(let i=0;i<3;i++){let c=new THREE.Mesh(new THREE.ConeGeometry(.82-i*.12,1.5,7),i===1?pine2:pine);c.position.y=.35+i*.75;c.castShadow=true;g.add(c)}const star=new THREE.Mesh(new THREE.OctahedronGeometry(.13),gold);star.position.y=2.8;g.add(star);g.scale.setScalar(scale);g.position.set(x,0,z);parent.add(g);return g}
+for(let z=-4;z>-150;z-=5){for(const side of [-1,1])makeTree(scene,side*(7+Math.random()*15),z-Math.random()*3,.7+Math.random()*.6)}
+// Sleigh viewed from the front only: camera stays behind player, all Santa/back details are intentionally hidden.
+const player=new THREE.Group();scene.add(player);
+const sledBase=new THREE.Mesh(new THREE.BoxGeometry(2.15,.22,1.3),red);sledBase.position.set(0,-.05,.12);sledBase.castShadow=true;player.add(sledBase);
+const nose=new THREE.Mesh(new THREE.ConeGeometry(.65,.8,4),gold);nose.rotation.x=Math.PI/2;nose.position.set(0,-.02,-.82);player.add(nose);
+for(const side of [-1,1]){let runner=new THREE.Mesh(new THREE.CapsuleGeometry(.065,1.45,4,8),gold);runner.rotation.x=Math.PI/2;runner.position.set(side*.83,-.35,.12);player.add(runner);let rail=new THREE.Mesh(new THREE.BoxGeometry(.1,.75,.12),red);rail.position.set(side*.93,.27,.42);player.add(rail)}
+// Lanterns shine forward along travel direction (-Z)
+for(const side of [-1,1]){let l=new THREE.Mesh(new THREE.SphereGeometry(.14,10,8),windowMat);l.position.set(side*.78,.22,-.48);player.add(l)}
+player.position.set(0,.85,4);lantern.position.set(0,2,-1);sleighLamp.position.set(0,1.1,-1);
+const snowParticles=new THREE.BufferGeometry(),snowPos=[];for(let i=0;i<650;i++)snowPos.push((Math.random()-.5)*36,Math.random()*18-1,-Math.random()*100);snowParticles.setAttribute('position',new THREE.Float32BufferAttribute(snowPos,3));const snowPoints=new THREE.Points(snowParticles,new THREE.PointsMaterial({color:0xcfe6ff,size:.075,transparent:true,opacity:.7}));scene.add(snowPoints);
+// Houses sit beside the path; each has a visible glowing tree and a delivery spot under it.
+const houses=[];function buildHouse(index,x,z){const g=new THREE.Group();const body=new THREE.Mesh(new THREE.BoxGeometry(4,2.8,3.2),material([0x40334a,0x34435a,0x493b3b,0x303f4d,0x55404d][index%5]));body.position.y=.8;body.castShadow=true;g.add(body);const roof=new THREE.Mesh(new THREE.ConeGeometry(3.1,1.8,4),material(0x18202f));roof.rotation.y=Math.PI/4;roof.position.y=3;roof.castShadow=true;g.add(roof);const door=new THREE.Mesh(new THREE.BoxGeometry(.7,1.4,.12),wood);door.position.set(0,.1,1.65);g.add(door);for(const xx of [-1.25,1.25]){const w=new THREE.Mesh(new THREE.BoxGeometry(.65,.8,.1),windowMat);w.position.set(xx,1.15,1.66);g.add(w);const wl=new THREE.PointLight(0xffa94d,2,5);wl.position.set(xx,1.2,2);g.add(wl)}g.position.set(x,0,z);scene.add(g);
+const tree=makeTree(scene,x+(x>0?-1:1)*1.6,z+3.5,.8);tree.traverse(o=>{if(o.isMesh&&o.geometry.type==='ConeGeometry')o.material=material(0x1b513d)});const glow=new THREE.PointLight(0xffc766,3,9);glow.position.set(tree.position.x,1.5,tree.position.z);scene.add(glow);const ring=new THREE.Mesh(new THREE.TorusGeometry(.8,.055,7,24),gold);ring.rotation.x=Math.PI/2;ring.position.set(tree.position.x,.04,tree.position.z);scene.add(ring);const gift=new THREE.Group();const box=new THREE.Mesh(new THREE.BoxGeometry(.5,.45,.5),red);gift.add(box);const ribbon=new THREE.Mesh(new THREE.BoxGeometry(.1,.48,.52),gold);gift.add(ribbon);const bow=new THREE.Mesh(new THREE.TorusGeometry(.13,.035,6,12),gold);bow.position.y=.27;gift.add(bow);gift.position.set(tree.position.x,.15,tree.position.z);gift.visible=false;scene.add(gift);houses.push({index,x,z,group:g,tree,gift,delivered:false,ring,glow})}
+const positions=[[-7,-23],[8,-43],[-8,-64],[8,-86],[-7,-109]];positions.forEach((p,i)=>buildHouse(i,p[0],p[1]));
+// Lantern path markers
+for(let z=-10;z>-120;z-=8){let p=new THREE.Mesh(new THREE.SphereGeometry(.09,8,6),gold);p.position.set(Math.sin(z*.12)*1.6,.07,z);scene.add(p);let l=new THREE.PointLight(0xffbb58,.55,3);l.position.copy(p.position);scene.add(l)}
+let keys={},active=false,paused=false,voiceOn=true,score=0,delivered=0,elapsed=0,remaining=180,steer=0,nearHouse=null,last=performance.now(),best=Number(localStorage.getItem('wonderland-night-best')||0),insideHouse=false,interiorGroup=null,outdoorVisibility=[];
+const fmt=n=>String(n).padStart(4,'0');
+function say(text){if(!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const choose=()=>{const vs=speechSynthesis.getVoices();const v=vs.find(v=>/en-GB/i.test(v.lang)&&/natural|premium|neural|enhanced|google|microsoft|aria|libby|ryan/i.test(v.name))||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang));if(v)u.voice=v;u.rate=.88;u.pitch=.92;u.volume=1;speechSynthesis.speak(u)};if(speechSynthesis.getVoices().length)choose();else{speechSynthesis.addEventListener('voiceschanged',choose,{once:true});setTimeout(choose,350)}}catch(e){}}
+const opening="When it's dark on Christmas night, Santa's in the air. Help him deliver the presents!";
+function updateHUD(){$('score').textContent=fmt(score);$('delivered').textContent=delivered+'/5';$('time').textContent=Math.max(0,Math.ceil(remaining))+'s';$('targetBar').style.width=(delivered/5*100)+'%';let target=houses.find(h=>!h.delivered);$('targetName').textContent=target?'House '+(target.index+1):'All gifts delivered';$('targetProgress').textContent=target?'Find the glowing tree':'Every present delivered!'}
+function start(){if(insideHouse)leaveHouse();score=0;delivered=0;elapsed=0;remaining=180;steer=0;player.position.set(0,.85,4);houses.forEach(h=>{h.delivered=false;h.gift.visible=false;h.ring.visible=true;h.glow.intensity=3});active=true;paused=false;$('intro').classList.add('hidden');$('ending').classList.add('hidden');$('delivery').classList.add('hidden');$('hint').innerHTML='Follow the warm lights. Steer with <span class="key">←</span> <span class="key">→</span>. Press <span class="key">E</span> at a house door to enter.';updateHUD();say(opening+' Your first house is ahead. Follow the golden lights.');last=performance.now()}
+$('begin').onclick=start;$('restart').onclick=start;
+function finish(win){active=false;$('ending').classList.remove('hidden');$('endTitle').textContent=win?'Every present delivered!':'Christmas morning is near';$('endText').textContent='You delivered '+delivered+' of 5 presents and earned '+score+' points. '+(score>best?'That is your new best score!':'Best score: '+Math.max(best,score)+'.');if(score>best){best=score;localStorage.setItem('wonderland-night-best',best)}say(win?'Wonderful work! Every house has a present under its Christmas tree. Merry Christmas!':'Time is up. Thank you for helping Santa tonight!');}
+function makeInterior(h){
+ const g=new THREE.Group(),wall=material(0x49352e),floorMat=material(0x674c3d),rug=material(0x8d1d32),warm=material(0xffc766,.45),darkWood=material(0x35241f);
+ const floor=new THREE.Mesh(new THREE.BoxGeometry(10,.25,10),floorMat);floor.position.y=-.3;g.add(floor);
+ for(const [x,y,z,sx,sy,sz] of [[0,2.4,-5,10,5,.25],[0,2.4,5,10,5,.25],[-5,2.4,0,.25,5,10],[5,2.4,0,.25,5,10]]){const w=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),wall);w.position.set(x,y,z);g.add(w)}
+ const rugMesh=new THREE.Mesh(new THREE.BoxGeometry(4,.06,4),rug);rugMesh.position.set(0,-.14,-.1);g.add(rugMesh);
+ const tree=makeTree(g,0,-1.7,1.12);tree.traverse(o=>{if(o.isMesh&&o.geometry.type==='ConeGeometry')o.material=material(0x17603d)});
+ const star=new THREE.Mesh(new THREE.OctahedronGeometry(.24),gold);star.position.set(0,3.1,-1.7);g.add(star);
+ for(const [x,z] of [[-2.5,-4.8],[2.5,-4.8],[-4.8,0],[4.8,0]]){const win=new THREE.Mesh(new THREE.BoxGeometry(1.05,1.2,.1),windowMat);win.position.set(x,2.1,z);g.add(win)}
+ const lamp=new THREE.PointLight(0xffc16a,18,20);lamp.position.set(0,3,0);g.add(lamp);
+ const door=new THREE.Mesh(new THREE.BoxGeometry(1.25,2.25,.18),darkWood);door.position.set(0,.85,4.83);g.add(door);
+ const gift=new THREE.Group(),box=new THREE.Mesh(new THREE.BoxGeometry(.65,.55,.65),red),ribbon=new THREE.Mesh(new THREE.BoxGeometry(.13,.58,.68),gold);gift.add(box,ribbon);gift.position.set(0,.15,-1.7);gift.visible=false;g.add(gift);
+ g.position.set(0,0,0);scene.add(g);return {group:g,gift,tree};
+}
+function enterHouse(h){
+ if(insideHouse||h.delivered)return;
+ insideHouse=true;nearHouse=h;outdoorVisibility=scene.children.filter(o=>o!==interiorGroup).map(o=>[o,o.visible]);outdoorVisibility.forEach(([o])=>o.visible=false);
+ const room=makeInterior(h);interiorGroup=room.group;h.interior=room;player.visible=false;
+ camera.position.set(0,2.6,7.8);camera.lookAt(0,1,-1.2);
+ $('delivery').classList.remove('hidden');$('deliveryTitle').textContent='Inside House '+(h.index+1);$('deliveryText').textContent='Walk to the Christmas tree and press E to leave the present';
+ $('hint').textContent='You are inside the house. Use W A S D or the arrow keys to walk. Press E by the tree to deliver.';
+ say('You made it inside the house. Find the Christmas tree and place the present underneath it.');
+}
+function leaveHouse(){
+ if(!insideHouse)return;
+ insideHouse=false;if(interiorGroup){scene.remove(interiorGroup);interiorGroup=null}
+ outdoorVisibility.forEach(([o,v])=>o.visible=v);player.visible=true;
+ $('delivery').classList.add('hidden');nearHouse=null;
+ say('Back outside. Follow the golden lights to the next house.');
+}
+function tryDeliver(){
+ if(!active)return;
+ if(insideHouse&&nearHouse&&!nearHouse.delivered){
+   const p=player.position,tx=nearHouse.interior.tree.position.x,tz=nearHouse.interior.tree.position.z;
+   if(Math.hypot(p.x-tx,p.z-tz)<2.3){nearHouse.delivered=true;nearHouse.interior.gift.visible=true;delivered++;score+=100;updateHUD();$('deliveryTitle').textContent='Present delivered!';$('deliveryText').textContent='Press E by the door to leave the house';$('hint').textContent='Present delivered! +100 points. Walk to the door and press E to leave.';
+   say('Present delivered! A lovely Christmas surprise. Find the next house.');if(delivered===5){score+=Math.ceil(remaining)*2;updateHUD();finish(true)}}
+   else if(Math.hypot(p.x,p.z-4.1)<1.7){leaveHouse()}
+   else {$('hint').textContent='Walk close to the Christmas tree to leave the present.'}
+   return;
+ }
+ if(!nearHouse)return;
+ if(nearHouse.delivered)return;
+ enterHouse(nearHouse);
+}
+addEventListener('keydown',e=>{keys[e.code]=true;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Space','KeyA','KeyD','KeyW','KeyS','KeyE','Enter'].includes(e.code))e.preventDefault();if(e.code==='KeyE'||e.code==='Enter')tryDeliver()});addEventListener('keyup',e=>keys[e.code]=false);addEventListener('blur',()=>keys={});
+document.querySelectorAll('[data-key]').forEach(b=>{let k=b.dataset.key;b.addEventListener('pointerdown',e=>{e.preventDefault();keys[k]=true;if(k==='KeyE')tryDeliver()});for(let ev of ['pointerup','pointercancel','pointerleave'])b.addEventListener(ev,()=>keys[k]=false)});
+function update(dt){if(!active||paused)return;elapsed+=dt;remaining-=dt;
+ if(insideHouse){
+   const speed=4.2,dx=((keys.ArrowRight||keys.KeyD)?1:0)-((keys.ArrowLeft||keys.KeyA)?1:0),dz=((keys.ArrowDown||keys.KeyS)?1:0)-((keys.ArrowUp||keys.KeyW)?1:0);
+   const nx=THREE.MathUtils.clamp(player.position.x+dx*speed*dt,-4.15,4.15),nz=THREE.MathUtils.clamp(player.position.z+dz*speed*dt,-4.15,4.15);
+   // Solid walls stop the player; the front doorway is the only exit.
+   player.position.x=nx;player.position.z=nz;
+   camera.position.lerp(new THREE.Vector3(player.position.x,player.position.y+2.4,player.position.z+7.5),1-Math.exp(-dt*5));camera.lookAt(player.position.x,1.2,player.position.z-2);
+   if(nearHouse&&nearHouse.interior){const d=Math.hypot(player.position.x,player.position.z+1.7);if(!nearHouse.delivered&&d<2.4){$('delivery').classList.remove('hidden');$('deliveryTitle').textContent='Christmas tree';$('deliveryText').textContent='Press E to place the present underneath';}else if(nearHouse.delivered&&Math.hypot(player.position.x,player.position.z-4.1)<1.8){$('delivery').classList.remove('hidden');$('deliveryTitle').textContent='Door';$('deliveryText').textContent='Press E to go back outside';}}
+   updateHUD();return;
+ }if(remaining<=0){remaining=0;updateHUD();finish(false);return}let l=keys.ArrowLeft||keys.KeyA,r=keys.ArrowRight||keys.KeyD;steer=THREE.MathUtils.clamp(steer+((r?1:0)-(l?1:0))*dt*5.5,-8,8);player.position.x=THREE.MathUtils.damp(player.position.x,steer,5,dt);player.rotation.z=THREE.MathUtils.damp(player.rotation.z,-((r?1:0)-(l?1:0))*.12,4,dt);
+// Forward travel; scenery slides towards the player, creating a first-person sleigh ride.
+player.position.z-=dt*2.3;for(const h of houses){h.group.position.z+=dt*2.3;h.tree.position.z+=dt*2.3;h.ring.position.z+=dt*2.3;h.gift.position.z+=dt*2.3;h.glow.position.z+=dt*2.3;if(h.group.position.z>12&&!h.delivered){h.group.position.z=-120;h.tree.position.z-=132;h.ring.position.z-=132;h.gift.position.z-=132;h.glow.position.z-=132;h.delivered=false;h.gift.visible=false;h.ring.visible=true}const dx=Math.abs(player.position.x-h.group.position.x),doorZ=h.group.position.z+1.65,dz=Math.abs(player.position.z-doorZ);if(!h.delivered&&dx<3.2&&dz<3.5){nearHouse=h;$('delivery').classList.remove('hidden');$('deliveryTitle').textContent='House '+(h.index+1)+' · Front door';$('deliveryText').textContent='Press E to enter the house';$('hint').textContent='You are at the front door. Press E to go inside and deliver the present.'}else if(nearHouse===h&&(dx>=3.2||dz>=3.5)){nearHouse=null;$('delivery').classList.add('hidden')}}
+if(!nearHouse||nearHouse.delivered){let next=houses.find(h=>!h.delivered);if(next){$('targetName').textContent='House '+(next.index+1);$('targetProgress').textContent='Follow the warm lights';}}
+const arr=snowParticles.attributes.position.array;for(let i=1;i<arr.length;i+=3){arr[i]-=dt*2.2;if(arr[i]<-1)arr[i]=17}snowParticles.attributes.position.needsUpdate=true;updateHUD()}
+function animate(now){const dt=Math.min((now-last)/1000,.04);last=now;update(dt);
+// Camera sits behind and slightly above the sleigh: only the sleigh's front edge is visible at the bottom.
+if(!insideHouse){const target=new THREE.Vector3(player.position.x*.75,player.position.y+2.5,player.position.z+7.8);camera.position.lerp(target,1-Math.exp(-dt*3));camera.lookAt(player.position.x*.35,player.position.y+.1,player.position.z-12);}lantern.position.set(player.position.x,player.position.y+1.4,player.position.z-1);sleighLamp.position.set(player.position.x,player.position.y+.6,player.position.z-1);renderer.render(scene,camera)}
+renderer.setAnimationLoop(animate);addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+updateHUD();
+</script></body></html>
