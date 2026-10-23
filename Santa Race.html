@@ -115,7 +115,17 @@ function update(dt){if(!active||paused)return;elapsed+=dt;remaining-=dt;
    camera.position.lerp(new THREE.Vector3(player.position.x,player.position.y+2.4,player.position.z+7.5),1-Math.exp(-dt*5));camera.lookAt(player.position.x,1.2,player.position.z-2);
    if(nearHouse&&nearHouse.interior){const d=Math.hypot(player.position.x,player.position.z+1.7);if(!nearHouse.delivered&&d<2.4){$('delivery').classList.remove('hidden');$('deliveryTitle').textContent='Christmas tree';$('deliveryText').textContent='Press E to place the present underneath';}else if(nearHouse.delivered&&Math.hypot(player.position.x,player.position.z-4.1)<1.8){$('delivery').classList.remove('hidden');$('deliveryTitle').textContent='Door';$('deliveryText').textContent='Press E to go back outside';}}
    updateHUD();return;
- }if(remaining<=0){remaining=0;updateHUD();finish(false);return}let l=keys.ArrowLeft||keys.KeyA,r=keys.ArrowRight||keys.KeyD;steer=THREE.MathUtils.clamp(steer+((r?1:0)-(l?1:0))*dt*5.5,-8,8);player.position.x=THREE.MathUtils.damp(player.position.x,steer,5,dt);player.rotation.z=THREE.MathUtils.damp(player.rotation.z,-((r?1:0)-(l?1:0))*.12,4,dt);
+ }if(remaining<=0){remaining=0;updateHUD();finish(false);return}let l=keys.ArrowLeft||keys.KeyA,r=keys.ArrowRight||keys.KeyD;steer=THREE.MathUtils.clamp(steer+((r?1:0)-(l?1:0))*dt*5.5,-8,8);
+let desiredX=THREE.MathUtils.damp(player.position.x,steer,5,dt);
+for(const h of houses){
+ const hz=h.group.position.z, hx=h.group.position.x;
+ // House walls are solid; only the front doorway remains accessible for entering.
+ if(Math.abs(player.position.z-hz)<2.15 && Math.abs(desiredX-hx)<2.65){
+   const atFrontDoor=Math.abs(player.position.z-(hz+1.65))<1.25 && Math.abs(desiredX-hx)<.85;
+   if(!atFrontDoor)desiredX=player.position.x;
+ }
+}
+player.position.x=desiredX;player.rotation.z=THREE.MathUtils.damp(player.rotation.z,-((r?1:0)-(l?1:0))*.12,4,dt);
 // Forward travel; scenery slides towards the player, creating a first-person sleigh ride.
 player.position.z-=dt*2.3;for(const h of houses){h.group.position.z+=dt*2.3;h.tree.position.z+=dt*2.3;h.ring.position.z+=dt*2.3;h.gift.position.z+=dt*2.3;h.glow.position.z+=dt*2.3;if(h.group.position.z>12&&!h.delivered){h.group.position.z=-120;h.tree.position.z-=132;h.ring.position.z-=132;h.gift.position.z-=132;h.glow.position.z-=132;h.delivered=false;h.gift.visible=false;h.ring.visible=true}const dx=Math.abs(player.position.x-h.group.position.x),doorZ=h.group.position.z+1.65,dz=Math.abs(player.position.z-doorZ);if(!h.delivered&&dx<3.2&&dz<3.5){nearHouse=h;$('delivery').classList.remove('hidden');$('deliveryTitle').textContent='House '+(h.index+1)+' · Front door';$('deliveryText').textContent='Press E to enter the house';$('hint').textContent='You are at the front door. Press E to go inside and deliver the present.'}else if(nearHouse===h&&(dx>=3.2||dz>=3.5)){nearHouse=null;$('delivery').classList.add('hidden')}}
 if(!nearHouse||nearHouse.delivered){let next=houses.find(h=>!h.delivered);if(next){$('targetName').textContent='House '+(next.index+1);$('targetProgress').textContent='Follow the warm lights';}}
